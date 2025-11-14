@@ -5,7 +5,7 @@ import { Testimonials } from '@/components/landing/testimonials';
 
 export default function Home() {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full">
       <Hero />
       <Features />
       <HowItWorks />

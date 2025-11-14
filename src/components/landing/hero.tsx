@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="relative h-[85vh] min-h-[600px] flex items-center justify-center text-center text-white overflow-hidden">
+    <section className="relative w-full h-[85vh] min-h-[600px] flex items-center justify-center text-center text-white overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
           src="https://picsum.photos/1200/800"
@@ -28,7 +28,7 @@ export function Hero() {
         </p>
         <div className="mt-10 flex flex-col sm:flex-row gap-4">
           <Button size="lg" asChild className="text-base">
-            <Link href="/signup">
+            <Link href="/login">
               Get Started For Free <ArrowRight className="ml-2"/>
             </Link>
           </Button>

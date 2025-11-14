@@ -32,9 +32,9 @@ export default function RootLayout({
         >
           <FirebaseClientProvider>
             <SidebarProvider>
-              <div className="flex flex-col min-h-screen">
+              <div className="flex flex-col min-h-screen w-full">
                 <Navbar />
-                <div className="flex-grow flex w-full">
+                <div className="flex-grow flex w-full overflow-x-hidden">
                   {children}
                 </div>
               </div>

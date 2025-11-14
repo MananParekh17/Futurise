@@ -39,8 +39,8 @@ const testimonials = [
 
 export function Testimonials() {
   return (
-    <section id="testimonials" className="py-20 sm:py-32">
-      <div className="px-4 sm:px-6 lg:px-8">
+    <section id="testimonials" className="w-full py-20 sm:py-32">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="font-headline text-3xl md:text-4xl font-bold">Loved by Students Worldwide</h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
