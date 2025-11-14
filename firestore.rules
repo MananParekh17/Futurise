@@ -1,0 +1,196 @@
+
+/**
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for most data,
+ *              with a separate public collection for community posts.
+ *
+ * Data Structure:
+ * - User profiles are stored under `/users/{userId}`.
+ * - All user-specific data (tests, predictions, analyses, content, etc.)
+ *   is nested under the respective `/users/{userId}` document.
+ * - Community posts are stored in a top-level `/community_posts` collection.
+ *
+ * Key Security Decisions:
+ * - Users can only access their own profile data and associated subcollections.
+ * - Community posts are publicly readable, but only authenticated users can create them,
+ *   and only the owner can update or delete them.
+ * - User listing is disabled to prevent data scraping.
+ *
+ * Denormalization for Authorization:
+ *   To ensure Authorization Independence, all user-specific data is stored
+ *   under the `/users/{userId}` path. This allows for path-based
+ *   authorization without needing to read other documents.
+ *
+ * Structural Segregation:
+ *   The decision to segregate CommunityPosts into a separate top-level
+ *   collection allows for independent security management. User-specific
+ *   data is secured via path-based rules, while CommunityPosts can be
+ *   configured for broader access as needed.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the request is made by a signed-in user.
+     * @return {boolean} True if the user is signed in, false otherwise.
+     */
+    function isSignedIn(request) {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the request is made by the owner of the resource.
+     * @param {string} userId The user ID to compare against the request's authentication UID.
+     * @return {boolean} True if the user ID matches the authentication UID, false otherwise.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the request is made by the existing owner of the resource.
+     * @param {string} userId The user ID to compare against the request's authentication UID and resource data.
+     * @return {boolean} True if the user ID matches the authentication UID and the resource exists, false otherwise.
+     */
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Defines rules for user documents.
+     * @path /users/{userId}
+     * @allow (create) Signed-in user creating their own profile.
+     * @allow (get, update, delete) Signed-in user accessing their own profile.
+     * @deny (create) Signed-in user attempting to create a profile for another user.
+     * @deny (get, update, delete) Signed-in user attempting to access another user's profile.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Do not allow listing of users.
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for psychometric test documents within a user's profile.
+     * @path /users/{userId}/psychometric_tests/{psychometricTestId}
+     * @allow (create, get, update, delete) Signed-in user accessing their own psychometric tests.
+     * @deny (create, get, update, delete) Signed-in user attempting to access another user's psychometric tests.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/psychometric_tests/{psychometricTestId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for career prediction documents within a user's profile.
+     * @path /users/{userId}/career_predictions/{careerPredictionId}
+     * @allow (create, get, update, delete) Signed-in user accessing their own career predictions.
+     * @deny (create, get, update, delete) Signed-in user attempting to access another user's career predictions.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/career_predictions/{careerPredictionId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for skill gap analysis documents within a user's profile.
+     * @path /users/{userId}/skill_gap_analyses/{skillGapAnalysisId}
+     * @allow (create, get, update, delete) Signed-in user accessing their own skill gap analyses.
+     * @deny (create, get, update, delete) Signed-in user attempting to access another user's skill gap analyses.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/skill_gap_analyses/{skillGapAnalysisId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for learning content documents within a skill gap analysis.
+     * @path /users/{userId}/skill_gap_analyses/{skillGapAnalysisId}/learning_content/{learningContentId}
+     * @allow (create, get, update, delete) Signed-in user accessing their own learning content.
+     * @deny (create, get, update, delete) Signed-in user attempting to access another user's learning content.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/skill_gap_analyses/{skillGapAnalysisId}/learning_content/{learningContentId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for knowledge test documents within a user's profile.
+     * @path /users/{userId}/knowledge_tests/{knowledgeTestId}
+     * @allow (create, get, update, delete) Signed-in user accessing their own knowledge tests.
+     * @deny (create, get, update, delete) Signed-in user attempting to access another user's knowledge tests.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/knowledge_tests/{knowledgeTestId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for streak documents within a user's profile.
+     * @path /users/{userId}/streaks/{streakId}
+     * @allow (create, get, update, delete) Signed-in user accessing their own streak data.
+     * @deny (create, get, update, delete) Signed-in user attempting to access another user's streak data.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/streaks/{streakId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for reward documents within a user's profile.
+     * @path /users/{userId}/rewards/{rewardId}
+     * @allow (create, get, update, delete) Signed-in user accessing their own rewards.
+     * @deny (create, get, update, delete) Signed-in user attempting to access another user's rewards.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/rewards/{rewardId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for community post documents.
+     * @path /community_posts/{communityPostId}
+     * @allow (get, list) Public read access for all posts.
+     * @allow (create) Signed-in user can create posts. Must include user.uid and match the creator's ID.
+     * @allow (update, delete) Only the owner can update/delete.
+     * @principle Public read, owner-only writes.
+     */
+    match /community_posts/{communityPostId} {
+      allow get, list: if true;
+      allow create: if isSignedIn(request) && request.resource.data.user.uid == request.auth.uid;
+      allow update, delete: if isOwner(resource.data.user.uid);
+    }
+  }
+}

@@ -1,0 +1,545 @@
+
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user within the Futurise application. User documents are primarily managed by secure server-side functions for streak and point calculations. Users can read their own profile data.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "User's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "User's last name."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "Timestamp of the user's last login.",
+          "format": "date-time"
+        },
+        "userSkills": {
+          "type": "array",
+          "description": "A list of the user's self-identified skills.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "desiredRole": {
+          "type": "string",
+          "description": "The user's desired job role."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName",
+        "createdAt"
+      ]
+    },
+    "PsychometricTest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PsychometricTest",
+      "type": "object",
+      "description": "Represents a psychometric test taken by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the psychometric test."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N PsychometricTest)"
+        },
+        "testDate": {
+          "type": "string",
+          "description": "Date and time when the test was taken.",
+          "format": "date-time"
+        },
+        "results": {
+          "type": "string",
+          "description": "JSON string containing the test results. Actual structure depends on the test format."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "testDate",
+        "results"
+      ]
+    },
+    "CareerPrediction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CareerPrediction",
+      "type": "object",
+      "description": "Represents a career prediction generated for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the career prediction."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N CareerPrediction)"
+        },
+        "psychometricTestId": {
+          "type": "string",
+          "description": "Reference to PsychometricTest. (Relationship: PsychometricTest 1:1 CareerPrediction)"
+        },
+        "predictedCareer": {
+          "type": "string",
+          "description": "The predicted career path."
+        },
+        "confidenceScore": {
+          "type": "number",
+          "description": "Confidence score for the prediction (0-1)."
+        },
+        "predictionDate": {
+          "type": "string",
+          "description": "Date when the prediction was generated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "psychometricTestId",
+        "predictedCareer",
+        "confidenceScore",
+        "predictionDate"
+      ]
+    },
+    "SkillGapAnalysis": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SkillGapAnalysis",
+      "type": "object",
+      "description": "Represents the analysis of skill gaps for a user towards a specific career.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the skill gap analysis."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N SkillGapAnalysis)"
+        },
+        "desiredRole": {
+          "type": "string",
+          "description": "The desired job role for this analysis."
+        },
+        "userSkills": {
+          "type": "array",
+          "description": "The user's skills at the time of analysis.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missingSkills": {
+          "type": "array",
+          "description": "List of missing skills.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "learningPlan": {
+          "type": "string",
+          "description": "The AI-generated learning plan in Markdown format."
+        },
+        "roadmap": {
+          "type": "array",
+          "description": "Structured learning roadmap with courses and links.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stepName": { "type": "string" },
+              "recommendedCourse": { "type": "string" },
+              "duration": { "type": "string" },
+              "link": { "type": "string", "format": "uri" }
+            }
+          }
+        },
+        "analysisDate": {
+          "type": "string",
+          "description": "Date when the skill gap analysis was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "desiredRole",
+        "userSkills",
+        "missingSkills",
+        "analysisDate"
+      ]
+    },
+    "LearningContent": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LearningContent",
+      "type": "object",
+      "description": "Represents a piece of learning content suggested to a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the learning content."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the learning content."
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Type of content (e.g., article, video, course)."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL of the learning content.",
+          "format": "uri"
+        },
+        "skillGapAnalysisId": {
+          "type": "string",
+          "description": "Reference to SkillGapAnalysis. (Relationship: SkillGapAnalysis 1:N LearningContent)"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "contentType",
+        "url",
+        "skillGapAnalysisId"
+      ]
+    },
+    "KnowledgeTest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "KnowledgeTest",
+      "type": "object",
+      "description": "Represents a knowledge test taken by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the knowledge test."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N KnowledgeTest)"
+        },
+        "testName": {
+          "type": "string",
+          "description": "Name or title of the knowledge test."
+        },
+        "score": {
+          "type": "number",
+          "description": "User's score on the test."
+        },
+        "testDate": {
+          "type": "string",
+          "description": "Date and time when the test was taken.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "testName",
+        "score",
+        "testDate"
+      ]
+    },
+    "Streak": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Streak",
+      "type": "object",
+      "description": "Represents a user's streak for daily engagement.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the streak."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Streak)"
+        },
+        "startDate": {
+          "type": "string",
+          "description": "Date when the streak started.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "Date when the streak ended (if applicable).",
+          "format": "date-time"
+        },
+        "streakLength": {
+          "type": "number",
+          "description": "Number of consecutive days in the streak."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "startDate",
+        "streakLength"
+      ]
+    },
+    "Reward": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Reward",
+      "type": "object",
+      "description": "Represents a reward earned by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the reward."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Reward)"
+        },
+        "rewardName": {
+          "type": "string",
+          "description": "Name of the reward."
+        },
+        "rewardDescription": {
+          "type": "string",
+          "description": "Description of the reward."
+        },
+        "rewardDate": {
+          "type": "string",
+          "description": "Date when the reward was earned.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "rewardName",
+        "rewardDescription",
+        "rewardDate"
+      ]
+    },
+    "CommunityPost": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CommunityPost",
+      "type": "object",
+      "description": "Represents a post in the community chat.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the community post."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date and time the post was created.",
+          "format": "date-time"
+        },
+        "text": {
+          "type": "string",
+          "description": "The content of the post."
+        },
+        "user": {
+          "type": "object",
+          "description": "Information about the user who posted.",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "avatar": {
+              "type": "string",
+              "format": "uri"
+            },
+            "uid": {
+              "type": "string"
+            }
+          },
+          "required": ["name", "uid"]
+        }
+      },
+      "required": [
+        "id",
+        "createdAt",
+        "text",
+        "user"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Collection to store user profiles. All write operations (create, update, delete) are managed by secure server-side functions. Users can read their own documents.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/psychometric_tests/{psychometricTestId}",
+        "definition": {
+          "entityName": "PsychometricTest",
+          "schema": {
+            "$ref": "#/backend/entities/PsychometricTest"
+          },
+          "description": "Subcollection to store psychometric tests taken by a user. User can only access their own psychometric tests.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "psychometricTestId",
+              "description": "The unique identifier of the psychometric test."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/career_predictions/{careerPredictionId}",
+        "definition": {
+          "entityName": "CareerPrediction",
+          "schema": {
+            "$ref": "#/backend/entities/CareerPrediction"
+          },
+          "description": "Subcollection to store career predictions for a user.  User can only access their own career predictions.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "careerPredictionId",
+              "description": "The unique identifier of the career prediction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/skill_gap_analyses/{skillGapAnalysisId}",
+        "definition": {
+          "entityName": "SkillGapAnalysis",
+          "schema": {
+            "$ref": "#/backend/entities/SkillGapAnalysis"
+          },
+          "description": "Subcollection to store skill gap analyses for a user. User can create and read their own skill gap analyses. Updates are managed by server functions.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "skillGapAnalysisId",
+              "description": "The unique identifier of the skill gap analysis."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/knowledge_tests/{knowledgeTestId}",
+        "definition": {
+          "entityName": "KnowledgeTest",
+          "schema": {
+            "$ref": "#/backend/entities/KnowledgeTest"
+          },
+          "description": "Subcollection to store knowledge tests taken by a user. User can only access their own knowledge tests.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "knowledgeTestId",
+              "description": "The unique identifier of the knowledge test."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/streaks/{streakId}",
+        "definition": {
+          "entityName": "Streak",
+          "schema": {
+            "$ref": "#/backend/entities/Streak"
+          },
+          "description": "Subcollection to store streak data for a user. User can only access their own streaks.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "streakId",
+              "description": "The unique identifier of the streak."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/rewards/{rewardId}",
+        "definition": {
+          "entityName": "Reward",
+          "schema": {
+            "$ref": "#/backend/entities/Reward"
+          },
+          "description": "Subcollection to store rewards earned by a user. User can only access their own rewards.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "rewardId",
+              "description": "The unique identifier of the reward."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/community_posts/{communityPostId}",
+        "definition": {
+          "entityName": "CommunityPost",
+          "schema": {
+            "$ref": "#/backend/entities/CommunityPost"
+          },
+          "description": "Collection to store community posts. Accessible to all users.",
+          "params": [
+            {
+              "name": "communityPostId",
+              "description": "The unique identifier of the community post."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure data isolation and efficient querying by leveraging path-based ownership for user-specific data. Each user's data (psychometric tests, career predictions, skill gap analyses, knowledge tests, streaks, and rewards) is stored under a dedicated `/users/{userId}` collection. This approach provides clear ownership and avoids the need for complex authorization rules with `get()` calls, ensuring Authorization Independence. The CommunityPosts are stored in a top-level collection `/community_posts` since these will likely need to be queryable for all users in the application. This structural segregation ensures that different security requirements (user-owned vs. community-accessible) are handled independently. The approach of user-owned subcollections and top-level segregated collections supports QAPs, enabling secure and efficient `list` operations based on path-based ownership."
+  }
+}
