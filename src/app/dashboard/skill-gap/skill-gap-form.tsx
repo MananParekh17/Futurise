@@ -210,13 +210,15 @@ export function SkillGapForm() {
                       <CommandGroup>
                         {careerData.map((role) => (
                           <CommandItem
-                            key={role.job}
-                            value={role.job}
-                            onSelect={(currentValue) => {
-                              setSelectedRole(currentValue.toLowerCase() === selectedRole.toLowerCase() ? "" : currentValue)
-                              setOpenRole(false)
-                            }}
-                          >
+                              key={role.job}
+                              value={role.job}
+                              onSelect={(currentValue) => {
+                                setSelectedRole(currentValue.toLowerCase() === selectedRole.toLowerCase() ? "" : currentValue)
+                                setOpenRole(false)
+                              }}
+                              style={{ pointerEvents: "auto", opacity: 1 }}
+                              className="cursor-pointer"
+                            >
                             <Check
                               className={cn(
                                 "mr-2 h-4 w-4",
